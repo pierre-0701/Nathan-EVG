@@ -13,43 +13,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDK (Compat Version for simple HTML single-file deployment) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBbK1KSFDTv7Mo6jRKOwdTpVthy7lZd26s",
-  authDomain: "nathan-evg.firebaseapp.com",
-  databaseURL: "https://nathan-evg-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "nathan-evg",
-  storageBucket: "nathan-evg.firebasestorage.app",
-  messagingSenderId: "25589640760",
-  appId: "1:25589640760:web:f0548bddcbf64f693900cd"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// To save a response when the survey is submitted:
-function saveResponse(budget, vibe) {
-    db.ref('responses').push({
-        budget: Number(budget),
-        vibe: vibe || "",
-        timestamp: Date.now()
-    });
-}
-
-// To load responses on your secret #results dashboard in real-time:
-function loadResponses(callback) {
-    db.ref('responses').on('value', (snapshot) => {
-        const data = snapshot.val();
-        const responses = data ? Object.values(data) : [];
-        callback(responses);
-    });
-}
         tailwind.config = {
             theme: {
                 extend: {
@@ -159,9 +127,9 @@ function loadResponses(callback) {
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="font-bold text-base text-white leading-none">Organizer Dashboard</h1>
-                        <span class="bg-brand-500/20 text-brand-300 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/30 uppercase tracking-wider">Secret View</span>
+                        <span class="bg-brand-500/20 text-brand-300 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/30 uppercase tracking-wider">Live Firebase Sync</span>
                     </div>
-                    <p class="text-xs text-slate-400">Live response analytics and participant ideas</p>
+                    <p class="text-xs text-slate-400">Live response analytics synced across all devices</p>
                 </div>
             </div>
 
@@ -173,7 +141,7 @@ function loadResponses(callback) {
                 </button>
                 <button onclick="copyShareLink('results')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
                     <i class="fa-solid fa-bookmark text-amber-400"></i>
-                    <span>Copy Organizer Link</span>
+                    <span>Copy Secret Organizer Link</span>
                 </button>
             </div>
         </div>
@@ -269,8 +237,9 @@ function loadResponses(callback) {
 
                 <!-- Submit Button -->
                 <button 
+                    id="submit-btn"
                     onclick="submitSurvey()" 
-                    class="w-full py-4 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold rounded-xl shadow-lg shadow-brand-600/25 transition-all text-base flex items-center justify-center gap-2"
+                    class="w-full py-4 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold rounded-xl shadow-lg shadow-brand-600/25 transition-all text-base flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>Submit Anonymous Preference</span>
@@ -289,7 +258,7 @@ function loadResponses(callback) {
                 <div class="space-y-2">
                     <h3 class="text-2xl font-bold text-slate-900">Response Submitted!</h3>
                     <p class="text-slate-600 text-sm max-w-sm mx-auto">
-                        Thank you! Your budget limit and ideas have been anonymously recorded to help plan the trip.
+                        Thank you! Your budget limit and ideas have been anonymously recorded to Firebase in real time.
                     </p>
                 </div>
 
@@ -311,7 +280,7 @@ function loadResponses(callback) {
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
                 <div>
                     <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Survey Results & Analytics</h2>
-                    <p class="text-slate-600 text-sm">Aggregated budget limits and participant ideas submission feed.</p>
+                    <p class="text-slate-600 text-sm">Aggregated budget limits and participant ideas synced live via Firebase.</p>
                 </div>
 
                 <div class="flex items-center gap-2">
@@ -319,7 +288,7 @@ function loadResponses(callback) {
                         <i class="fa-solid fa-download text-brand-600"></i> Export CSV
                     </button>
                     <button onclick="openResetModal()" class="px-4 py-2.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-xl text-xs font-bold text-rose-700 transition flex items-center gap-2">
-                        <i class="fa-solid fa-trash-can"></i> Reset Data
+                        <i class="fa-solid fa-trash-can"></i> Reset Firebase Data
                     </button>
                 </div>
             </div>
@@ -440,9 +409,9 @@ function loadResponses(callback) {
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="space-y-1">
-                <h3 class="text-lg font-bold text-slate-900">Reset All Survey Data?</h3>
+                <h3 class="text-lg font-bold text-slate-900">Reset All Firebase Data?</h3>
                 <p class="text-xs text-slate-500 leading-relaxed">
-                    This will permanently delete all recorded budget votes and comments from storage. This action cannot be undone.
+                    This will permanently delete all recorded budget votes and comments from your Firebase database. This action cannot be undone.
                 </p>
             </div>
             <div class="grid grid-cols-2 gap-3 pt-2">
@@ -464,26 +433,49 @@ function loadResponses(callback) {
     </footer>
 
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT & FIREBASE LOGIC -->
     <script>
-        const STORAGE_KEY = 'stag_survey_responses_v2';
+        // 1. FIREBASE INITIALIZATION WITH YOUR EXACT CREDENTIALS
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbK1KSFDTv7Mo6jRKOwdTpVthy7lZd26s",
+            authDomain: "nathan-evg.firebaseapp.com",
+            databaseURL: "https://nathan-evg-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "nathan-evg",
+            storageBucket: "nathan-evg.firebasestorage.app",
+            messagingSenderId: "25589640760",
+            appId: "1:25589640760:web:f0548bddcbf64f693900cd"
+        };
 
-        // Fetch stored responses from localStorage
-        function getResponses() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return [];
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                return [];
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const responsesRef = db.ref('responses');
+
+        // Global state for live organizer calculations
+        let liveResponses = [];
+
+        // Attach live Realtime Listener on initialization
+        responsesRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                liveResponses = Object.keys(data).map(key => ({
+                    firebaseKey: key,
+                    ...data[key]
+                }));
+            } else {
+                liveResponses = [];
             }
-        }
 
-        function saveResponses(list) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-        }
+            // If currently viewing results, re-render dashboard
+            if (window.location.hash.replace('#', '') === 'results') {
+                renderDashboard(liveResponses);
+            }
+        }, (error) => {
+            console.error("Firebase Read Error:", error);
+            showToast("Database connection warning", "error");
+        });
 
-        // View Router: Strictly show respondent survey or organizer view depending on #results hash
+        // View Router: Strictly show respondent survey or secret organizer view depending on #results hash
         function routeView() {
             const hash = window.location.hash.replace('#', '');
             
@@ -499,7 +491,7 @@ function loadResponses(callback) {
                 surveyView.classList.add('hidden');
                 resultsView.classList.remove('hidden');
 
-                renderDashboard();
+                renderDashboard(liveResponses);
             } else {
                 // Public Respondent View (Clean, strictly no organizer links)
                 organizerHeader.classList.add('hidden');
@@ -520,30 +512,38 @@ function loadResponses(callback) {
             document.getElementById('budget-slider').value = num;
         }
 
-        // Submit Form
+        // Submit Form to Firebase
         function submitSurvey() {
+            const submitBtn = document.getElementById('submit-btn');
             const budgetVal = parseInt(document.getElementById('budget-input').value) || 450;
             const vibeVal = document.getElementById('vibe-ideas').value.trim();
 
-            const responses = getResponses();
             const now = new Date();
             const timeStr = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].substring(0, 5);
 
             const newEntry = {
-                id: Date.now(),
                 budget: budgetVal,
                 ideas: vibeVal,
-                timestamp: timeStr
+                timestamp: timeStr,
+                createdAt: Date.now()
             };
 
-            responses.push(newEntry);
-            saveResponses(responses);
+            submitBtn.disabled = true;
 
-            // Hide form and show success
-            document.getElementById('survey-card').classList.add('hidden');
-            document.getElementById('survey-success').classList.remove('hidden');
+            // Push entry directly to Firebase Realtime Database node
+            responsesRef.push(newEntry).then(() => {
+                submitBtn.disabled = false;
 
-            showToast("Response recorded anonymously!", "success");
+                // Hide form and show success state
+                document.getElementById('survey-card').classList.add('hidden');
+                document.getElementById('survey-success').classList.remove('hidden');
+
+                showToast("Response recorded in real time!", "success");
+            }).catch((error) => {
+                submitBtn.disabled = false;
+                console.error("Firebase Write Error:", error);
+                showToast("Submission failed. Please check Firebase rules.", "error");
+            });
         }
 
         // Reset Survey Form for another entry
@@ -557,12 +557,11 @@ function loadResponses(callback) {
         }
 
         // Render Dashboard Analytics (Organizer View)
-        function renderDashboard() {
-            const responses = getResponses();
+        function renderDashboard(responses) {
             const noDataMsg = document.getElementById('no-data-msg');
             const content = document.getElementById('dashboard-content');
 
-            if (responses.length === 0) {
+            if (!responses || responses.length === 0) {
                 noDataMsg.classList.remove('hidden');
                 content.classList.add('hidden');
                 return;
@@ -573,7 +572,7 @@ function loadResponses(callback) {
 
             // Metrics
             const count = responses.length;
-            const budgets = responses.map(r => r.budget);
+            const budgets = responses.map(r => Number(r.budget) || 0);
             const sum = budgets.reduce((acc, curr) => acc + curr, 0);
             const avg = Math.round(sum / count);
             const min = Math.min(...budgets);
@@ -680,16 +679,15 @@ function loadResponses(callback) {
 
         // Export CSV
         function exportCSV() {
-            const responses = getResponses();
-            if (responses.length === 0) {
+            if (liveResponses.length === 0) {
                 showToast("No data available to export", "error");
                 return;
             }
 
             let csvContent = "data:text/csv;charset=utf-8,ID,Budget_EUR,Ideas_and_Vibes,Timestamp\n";
-            responses.forEach(r => {
+            liveResponses.forEach((r, idx) => {
                 const sanitizedIdeas = `"${(r.ideas || '').replace(/"/g, '""')}"`;
-                csvContent += `${r.id},${r.budget},${sanitizedIdeas},${r.timestamp || ''}\n`;
+                csvContent += `${r.firebaseKey || idx + 1},${r.budget},${sanitizedIdeas},${r.timestamp || ''}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
@@ -728,10 +726,13 @@ function loadResponses(callback) {
 
         function confirmClearAllData() {
             closeResetModal();
-            localStorage.removeItem(STORAGE_KEY);
-            saveResponses([]);
-            renderDashboard();
-            showToast("All survey data reset successfully", "info");
+            // Wipe the responses node in Firebase Realtime Database
+            responsesRef.remove().then(() => {
+                showToast("All Firebase survey data wiped", "info");
+            }).catch((err) => {
+                console.error("Firebase Delete Error:", err);
+                showToast("Failed to clear Firebase data", "error");
+            });
         }
 
         // Toast Notification Helper
