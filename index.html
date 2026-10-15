@@ -32,7 +32,24 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-        
+
+// To save a response when the survey is submitted:
+function saveResponse(budget, vibe) {
+    db.ref('responses').push({
+        budget: Number(budget),
+        vibe: vibe || "",
+        timestamp: Date.now()
+    });
+}
+
+// To load responses on your secret #results dashboard in real-time:
+function loadResponses(callback) {
+    db.ref('responses').on('value', (snapshot) => {
+        const data = snapshot.val();
+        const responses = data ? Object.values(data) : [];
+        callback(responses);
+    });
+}
         tailwind.config = {
             theme: {
                 extend: {
