@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Stag Do Budget & Idea Survey</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styled range slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            border: 3px solid #ffffff;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #1d4ed8;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            border: 3px solid #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white">
+
+    <!-- Top Toast Notification -->
+    <div id="toast" class="fixed top-6 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium flex items-center gap-2 transform transition-all duration-300 translate-y-[-100px] opacity-0 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-msg">Action completed</span>
+    </div>
+
+    <!-- PUBLIC HEADER (Clean header for respondents with NO links to organizer results) -->
+    <header id="public-header" class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-600/20">
+                    <i class="fa-solid fa-glass-cheers text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-none">Stag Do <span class="text-brand-600">Planner</span></h1>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Anonymous Budget & Idea Survey</p>
+                </div>
+            </div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200/60">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>100% Anonymous</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECRET ORGANIZER HEADER (Only visible on #results view) -->
+    <header id="organizer-header" class="hidden bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-chart-pie text-base"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-base text-white leading-none">Organizer Dashboard</h1>
+                        <span class="bg-brand-500/20 text-brand-300 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/30 uppercase tracking-wider">Secret View</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Live response analytics and participant ideas</p>
+                </div>
+            </div>
+
+            <!-- Quick Access Share Links for Organizer -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end text-xs">
+                <button onclick="copyShareLink('survey')" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>Copy Public Survey Link</span>
+                </button>
+                <button onclick="copyShareLink('results')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bookmark text-amber-400"></i>
+                    <span>Copy Organizer Link</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-5xl mx-auto px-4 py-8 w-full flex-grow">
+
+        <!-- VIEW 1: RESPONDENT SURVEY FORM (DEFAULT) -->
+        <section id="view-survey" class="max-w-xl mx-auto space-y-6">
+            
+            <!-- Survey Banner -->
+            <div class="text-center space-y-2 mb-6">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Stag Do Budget & Vibe Check</h2>
+                <p class="text-slate-600 text-sm max-w-md mx-auto">
+                    Help plan a stag weekend that works for everyone. No names, no email addresses, completely confidential.
+                </p>
+            </div>
+
+            <!-- Survey Card Form -->
+            <div id="survey-card" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-6 sm:p-8 space-y-8">
+                
+                <!-- Section 1: Total Budget -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label for="budget-slider" class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-600 text-xs font-bold flex items-center justify-center">1</span>
+                            Ideal Total Budget Per Person
+                        </label>
+                        <span class="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded-lg">EUR (€)</span>
+                    </div>
+                    
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Specify the maximum overall amount you are comfortable spending per person for the entire stag trip (including accommodation, activities & drinks).
+                    </p>
+
+                    <!-- Interactive Budget Display & Control -->
+                    <div class="bg-brand-50/70 rounded-2xl p-6 border border-brand-100 text-center space-y-4">
+                        <div class="flex items-center justify-center gap-1 text-slate-900">
+                            <span class="text-3xl font-bold text-brand-600">€</span>
+                            <input 
+                                type="number" 
+                                id="budget-input" 
+                                value="450" 
+                                min="50" 
+                                max="2000" 
+                                step="25" 
+                                class="text-4xl font-extrabold text-brand-700 bg-transparent text-center focus:outline-none w-36 border-b-2 border-brand-300 focus:border-brand-600"
+                                oninput="syncBudgetInput(this.value)"
+                            />
+                        </div>
+
+                        <!-- Slider -->
+                        <div class="px-2">
+                            <input 
+                                type="range" 
+                                id="budget-slider" 
+                                min="50" 
+                                max="2000" 
+                                step="25" 
+                                value="450" 
+                                class="w-full"
+                                oninput="syncBudgetSlider(this.value)"
+                            />
+                        </div>
+                        <div class="flex justify-between text-[11px] text-slate-400 font-semibold px-1">
+                            <span>€50</span>
+                            <span>€1,000</span>
+                            <span>€2,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Section 2: Open-Ended Vibes & Ideas -->
+                <div class="space-y-3">
+                    <label for="vibe-ideas" class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-brand-100 text-brand-600 text-xs font-bold flex items-center justify-center">2</span>
+                        Vibes, Locations & Ideas
+                    </label>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Share destination preferences, activity suggestions, dates that work/don't work, or any general comments for the organizer.
+                    </p>
+
+                    <textarea 
+                        id="vibe-ideas" 
+                        rows="4" 
+                        placeholder="E.g., Keen on Prague or Newcastle. Love Go-Karting or boat rentals. Prefer central apartments over hostels. Avoid early morning flights if possible!"
+                        class="w-full rounded-xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 text-slate-800 bg-slate-50/50"
+                    ></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    onclick="submitSurvey()" 
+                    class="w-full py-4 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold rounded-xl shadow-lg shadow-brand-600/25 transition-all text-base flex items-center justify-center gap-2"
+                >
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Submit Anonymous Preference</span>
+                </button>
+
+                <p class="text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-lock text-slate-400"></i> No personal information or names collected.
+                </p>
+            </div>
+
+            <!-- Confirmation Success State -->
+            <div id="survey-success" class="hidden bg-white rounded-2xl shadow-sm border border-emerald-200 p-8 text-center space-y-6">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-bold text-slate-900">Response Submitted!</h3>
+                    <p class="text-slate-600 text-sm max-w-sm mx-auto">
+                        Thank you! Your budget limit and ideas have been anonymously recorded to help plan the trip.
+                    </p>
+                </div>
+
+                <div class="pt-2 flex justify-center">
+                    <button onclick="resetSurveyForm()" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Submit Another Response</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- VIEW 2: SECRET ORGANIZER RESULTS DASHBOARD (`#results`) -->
+        <section id="view-results" class="hidden space-y-8">
+            
+            <!-- Dashboard Top Action Bar -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Survey Results & Analytics</h2>
+                    <p class="text-slate-600 text-sm">Aggregated budget limits and participant ideas submission feed.</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="exportCSV()" class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-download text-brand-600"></i> Export CSV
+                    </button>
+                    <button onclick="openResetModal()" class="px-4 py-2.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-xl text-xs font-bold text-rose-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-trash-can"></i> Reset Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State if 0 responses -->
+            <div id="no-data-msg" class="hidden bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300 space-y-4">
+                <div class="w-16 h-16 bg-brand-50 text-brand-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-inbox"></i>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-lg font-bold text-slate-900">No Responses Yet</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                        Share the public survey link with the group to start receiving responses.
+                    </p>
+                </div>
+                <button onclick="copyShareLink('survey')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    Copy Public Survey Link
+                </button>
+            </div>
+
+            <!-- Dashboard Content Grid -->
+            <div id="dashboard-content" class="space-y-8">
+                
+                <!-- Stat Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Stat 1: Count -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Responses</p>
+                            <h3 id="stat-count" class="text-3xl font-extrabold text-slate-900 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Average Budget -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Average Budget</p>
+                            <h3 id="stat-avg" class="text-3xl font-extrabold text-brand-600 mt-1">€0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3: Lowest Budget -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Lowest Limit</p>
+                            <h3 id="stat-min" class="text-3xl font-extrabold text-slate-900 mt-1">€0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-arrow-down-short-wide"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stat 4: Highest Budget -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Highest Limit</p>
+                            <h3 id="stat-max" class="text-3xl font-extrabold text-slate-900 mt-1">€0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-arrow-up-wide-short"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Section: Budget Spread Chart & Ideas Feed -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- Left: Budget Range Distribution -->
+                    <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-chart-bar text-brand-600"></i> Budget Range Distribution
+                            </h3>
+                            <span class="text-xs text-slate-500">Per Person (€)</span>
+                        </div>
+
+                        <!-- Range Bars Container -->
+                        <div id="distribution-bars" class="space-y-4">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Open Ideas Feed -->
+                    <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-6 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-comments text-brand-600"></i> Submitted Ideas & Feedback
+                                </h3>
+                                <span id="ideas-count" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-lg">0 entries</span>
+                            </div>
+
+                            <!-- Feed list container -->
+                            <div id="ideas-feed" class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                                <!-- Injected dynamically via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- CUSTOM RESET CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden transition-opacity duration-200 opacity-0 pointer-events-none">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-6 text-center space-y-4 transform transition-all duration-200 scale-95" id="confirm-modal-card">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-lg font-bold text-slate-900">Reset All Survey Data?</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    This will permanently delete all recorded budget votes and comments from storage. This action cannot be undone.
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeResetModal()" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition">
+                    Cancel
+                </button>
+                <button onclick="confirmClearAllData()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition">
+                    Yes, Reset Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-400">
+        <div class="max-w-5xl mx-auto px-4">
+            <p>© Anonymous Stag Do Budget Planner</p>
+        </div>
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const STORAGE_KEY = 'stag_survey_responses_v2';
+
+        // Fetch stored responses from localStorage
+        function getResponses() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveResponses(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        // View Router: Strictly show respondent survey or organizer view depending on #results hash
+        function routeView() {
+            const hash = window.location.hash.replace('#', '');
+            
+            const publicHeader = document.getElementById('public-header');
+            const organizerHeader = document.getElementById('organizer-header');
+            const surveyView = document.getElementById('view-survey');
+            const resultsView = document.getElementById('view-results');
+
+            if (hash === 'results') {
+                // Secret Organizer Dashboard View
+                publicHeader.classList.add('hidden');
+                organizerHeader.classList.remove('hidden');
+                surveyView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+
+                renderDashboard();
+            } else {
+                // Public Respondent View (Clean, strictly no organizer links)
+                organizerHeader.classList.add('hidden');
+                publicHeader.classList.remove('hidden');
+                resultsView.classList.add('hidden');
+                surveyView.classList.remove('hidden');
+            }
+        }
+
+        // Sync slider & numeric input controls
+        function syncBudgetSlider(val) {
+            document.getElementById('budget-input').value = val;
+        }
+
+        function syncBudgetInput(val) {
+            let num = parseInt(val) || 50;
+            if (num > 2000) num = 2000;
+            document.getElementById('budget-slider').value = num;
+        }
+
+        // Submit Form
+        function submitSurvey() {
+            const budgetVal = parseInt(document.getElementById('budget-input').value) || 450;
+            const vibeVal = document.getElementById('vibe-ideas').value.trim();
+
+            const responses = getResponses();
+            const now = new Date();
+            const timeStr = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].substring(0, 5);
+
+            const newEntry = {
+                id: Date.now(),
+                budget: budgetVal,
+                ideas: vibeVal,
+                timestamp: timeStr
+            };
+
+            responses.push(newEntry);
+            saveResponses(responses);
+
+            // Hide form and show success
+            document.getElementById('survey-card').classList.add('hidden');
+            document.getElementById('survey-success').classList.remove('hidden');
+
+            showToast("Response recorded anonymously!", "success");
+        }
+
+        // Reset Survey Form for another entry
+        function resetSurveyForm() {
+            document.getElementById('budget-input').value = 450;
+            document.getElementById('budget-slider').value = 450;
+            document.getElementById('vibe-ideas').value = '';
+
+            document.getElementById('survey-success').classList.add('hidden');
+            document.getElementById('survey-card').classList.remove('hidden');
+        }
+
+        // Render Dashboard Analytics (Organizer View)
+        function renderDashboard() {
+            const responses = getResponses();
+            const noDataMsg = document.getElementById('no-data-msg');
+            const content = document.getElementById('dashboard-content');
+
+            if (responses.length === 0) {
+                noDataMsg.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+
+            noDataMsg.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            // Metrics
+            const count = responses.length;
+            const budgets = responses.map(r => r.budget);
+            const sum = budgets.reduce((acc, curr) => acc + curr, 0);
+            const avg = Math.round(sum / count);
+            const min = Math.min(...budgets);
+            const max = Math.max(...budgets);
+
+            // Set Stats UI
+            document.getElementById('stat-count').innerText = count;
+            document.getElementById('stat-avg').innerText = `€${avg}`;
+            document.getElementById('stat-min').innerText = `€${min}`;
+            document.getElementById('stat-max').innerText = `€${max}`;
+
+            // Render Distribution Bars & Feed
+            renderDistribution(budgets, count);
+            renderIdeasFeed(responses);
+        }
+
+        // Render Distribution Range Bars
+        function renderDistribution(budgets, totalCount) {
+            const container = document.getElementById('distribution-bars');
+            container.innerHTML = '';
+
+            const brackets = [
+                { label: '€50 - €250', min: 50, max: 250 },
+                { label: '€251 - €500', min: 251, max: 500 },
+                { label: '€501 - €1,000', min: 501, max: 1000 },
+                { label: '€1,001+', min: 1001, max: 99999 }
+            ];
+
+            brackets.forEach(b => {
+                const inBin = budgets.filter(val => val >= b.min && val <= b.max).length;
+                const percentage = totalCount > 0 ? Math.round((inBin / totalCount) * 100) : 0;
+
+                const row = document.createElement('div');
+                row.className = "space-y-1.5";
+                row.innerHTML = `
+                    <div class="flex justify-between text-xs font-semibold text-slate-700">
+                        <span>${b.label}</span>
+                        <span class="text-slate-500">${inBin} vote${inBin !== 1 ? 's' : ''} (${percentage}%)</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                        <div class="bg-brand-600 h-full rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Render Ideas Feed
+        function renderIdeasFeed(responses) {
+            const feed = document.getElementById('ideas-feed');
+            const ideasCountLabel = document.getElementById('ideas-count');
+            feed.innerHTML = '';
+
+            const validIdeas = responses.filter(r => r.ideas && r.ideas.trim() !== '');
+            ideasCountLabel.innerText = `${validIdeas.length} idea${validIdeas.length !== 1 ? 's' : ''}`;
+
+            if (validIdeas.length === 0) {
+                feed.innerHTML = `
+                    <div class="p-6 text-center text-slate-400 text-xs italic bg-slate-50 rounded-xl border border-slate-100">
+                        No text feedback or ideas provided yet.
+                    </div>
+                `;
+                return;
+            }
+
+            // Render in reverse chronological order
+            [...validIdeas].reverse().forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl border border-slate-100 bg-slate-50/70 space-y-2 text-sm";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-bold text-brand-600">Response #${validIdeas.length - index}</span>
+                        <span>Budget: <strong class="text-slate-800">€${item.budget}</strong></span>
+                    </div>
+                    <p class="text-slate-700 leading-relaxed">"${escapeHTML(item.ideas)}"</p>
+                    <div class="text-[10px] text-slate-400 text-right">${item.timestamp || 'Recent'}</div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        // Helper: Escape HTML string
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Copy Share Links
+        function copyShareLink(targetView) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const fullUrl = targetView === 'results' ? `${baseUrl}#results` : baseUrl;
+
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = fullUrl;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            const label = targetView === 'survey' ? 'Public Survey link' : 'Secret Organizer link';
+            showToast(`${label} copied!`, 'success');
+        }
+
+        // Export CSV
+        function exportCSV() {
+            const responses = getResponses();
+            if (responses.length === 0) {
+                showToast("No data available to export", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Budget_EUR,Ideas_and_Vibes,Timestamp\n";
+            responses.forEach(r => {
+                const sanitizedIdeas = `"${(r.ideas || '').replace(/"/g, '""')}"`;
+                csvContent += `${r.id},${r.budget},${sanitizedIdeas},${r.timestamp || ''}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `stag_survey_results_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("CSV exported successfully!", "success");
+        }
+
+        // Reset Modal Controls
+        function openResetModal() {
+            const modal = document.getElementById('confirm-modal');
+            const card = document.getElementById('confirm-modal-card');
+            
+            modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('confirm-modal');
+            const card = document.getElementById('confirm-modal-card');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.add('scale-95');
+            card.classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function confirmClearAllData() {
+            closeResetModal();
+            localStorage.removeItem(STORAGE_KEY);
+            saveResponses([]);
+            renderDashboard();
+            showToast("All survey data reset successfully", "info");
+        }
+
+        // Toast Notification Helper
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = message;
+
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-brand-400 text-base";
+            }
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Initialize Router
+        window.addEventListener('DOMContentLoaded', () => {
+            routeView();
+            window.addEventListener('hashchange', routeView);
+        });
+    </script>
+</body>
+</html>
